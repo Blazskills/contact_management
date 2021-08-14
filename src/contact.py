@@ -76,6 +76,9 @@ def Add_contact():
                     'Messsage':
                     'phone number should not contain letters'
                 }), HTTP_400_BAD_REQUEST
+            if not isinstance(Phone, int):
+                return jsonify({'Messsage':
+                                'Phone number should be a digit'}), HTTP_400_BAD_REQUEST
             if len(Phone) < 10:
                 return jsonify({
                     'Messsage':
@@ -274,6 +277,9 @@ def editcontact(id):
                 'Messsage':
                 'phone number should not contain letters'
             }), HTTP_400_BAD_REQUEST
+        if not isinstance(Phone, int):
+                return jsonify({'Messsage':
+                                'Phone number should be a digit'}), HTTP_400_BAD_REQUEST
         if len(Phone) < 10:
             return jsonify({
                 'Messsage':

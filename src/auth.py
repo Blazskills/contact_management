@@ -130,6 +130,9 @@ def create_user():
                 'Messsage':
                 'phone number should not contain letters'
             }), HTTP_400_BAD_REQUEST
+        if not isinstance(phone, int):
+                return jsonify({'Messsage':
+                                'Phone number should be a digit'}), HTTP_400_BAD_REQUEST
 
         if User.query.filter_by(Email=Email).first() is not None:
             return jsonify({'Messsage':

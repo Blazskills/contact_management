@@ -12,6 +12,7 @@ parameters:
     in: body
     required: true
     schema:
+    required: true
       type: object
       required:
         - "First Name"
