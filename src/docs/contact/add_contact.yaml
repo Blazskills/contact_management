@@ -2,10 +2,13 @@ Add new contacts (not more than 100)
 ---
 tags:
   - Contact
-
 parameters:
   - in: header
     name: Authorization
+    required: true
+  - name: body
+    description: The body should contain the user Registration data
+    in: body
     required: true
     schema:
       type: object
@@ -17,6 +20,7 @@ parameters:
         - "day"
         - "month"
         - "year"
+      description: Ensure that dday,month and year are integer
       properties:
         fname:
           type: "First Name"
@@ -32,13 +36,13 @@ parameters:
           example: "08031100078"
         day:
           type: "Day"
-          example: "2"
+          example: 2
         month:
           type: "Month"
-          example: "12"
+          example: 12
         year:
-          type: "year"
-          example: "1992"
+          type:  "year"
+          example: 1992
 responses:
   201:
     description: New contact Created

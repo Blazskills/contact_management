@@ -1,11 +1,11 @@
-view all contacts by user
+view all contacts under current user
 ---
 tags:
   - Contact
 
 parameters:
   - in: header
-    name: Bearer Token
+    name: Authorization
     required: true
 
 responses:

@@ -217,6 +217,7 @@ def login_user():
 # retrive user 3
 @auth.get('/Retrive_profile')
 @jwt_required()
+@swag_from('./docs/user/retrive_user.yaml')
 def Retrive_profile():
     try:
         current_user = get_jwt_identity()
@@ -241,8 +242,8 @@ def Retrive_profile():
 
 # Update user 4
 @auth.put('/Update_profile')
-@auth.patch('/Update_profile')
 @jwt_required()
+@swag_from('./docs/user/user_profile_update.yaml')
 def Update_profile():
     current_user = get_jwt_identity()
     user = User.query.filter_by(Userid=current_user).first()
@@ -337,13 +338,24 @@ def Update_profile():
     except KeyError as e:
         return jsonify({'Error': str(e) + ' is missing'}), HTTP_400_BAD_REQUEST
 
+# Refresh token
 
+@auth.post('/refresh_token')
+@jwt_required(refresh=True)
+@swag_from('./docs/auth/refresh_token.yaml')
+def refresh_users_token():
+    identity=get_jwt_identity()
+    access=create_access_token(identity=identity)
+    return jsonify({
+        'access': access
+    }), HTTP_200_OK
 
 
 
 # Logout user 6
 @auth.route("/logout", methods=["DELETE"])
 @jwt_required()
+@swag_from('./docs/auth/logout.yaml')
 def logout():
     jti = get_jwt()["jti"]
     if jti:
@@ -351,15 +363,7 @@ def logout():
         db.session.add(TokenBlocklist(jti=jti, created_at=now))
         db.session.commit()
         return jsonify({'Message': 'Successfully logged out'}), HTTP_200_OK
-    return jsonify({'Message': 'Something unusual occurred while trying to log you out'}), HTTP_400_BAD_REQUEST
+    return jsonify({'Message': 'Something unusual occurred while trying to log you out'}), HTTP_500_INTERNAL_SERVER_ERROR
 
 
 
-@auth.post('/token/refresh')
-@jwt_required(refresh=True)
-def refresh_users_token():
-    identity=get_jwt_identity()
-    access=create_access_token(identity=identity)
-    return jsonify({
-        'access': access
-    }), HTTP_200_OK

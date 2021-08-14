@@ -1,0 +1,18 @@
+Retrive your profile information
+---
+tags:
+  - User
+
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+
+responses:
+  200:
+    description: Profile retrived
+
+  500:
+    description: Server Error
+
+  

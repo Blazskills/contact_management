@@ -1,0 +1,41 @@
+User Update profile here
+---
+tags:
+  - User
+
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+  - name: body
+    description: The body should contain the user profile update data
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "First Name"
+        - "Last Name"
+        - "Username"
+      properties:
+        fname:
+          type: "First Name"
+          example: "temitope"
+        lname:
+          type: "Last Name"
+          example: "ilesanmi"
+        User_name:
+          type: "Username"
+          example: "Blazskills"
+responses:
+  201:
+    description: New contact Created
+
+  400:
+    description: Bad request
+  
+  409:
+    description: Internal Server error
+  500:
+    description: There's a Conflict of data
+ 

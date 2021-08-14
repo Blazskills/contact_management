@@ -1,11 +1,11 @@
-view all contacts available in the database. By all authorized user 
+view all contacts available in the database. Only available to authorized user
 ---
 tags:
   - Contact
 
 parameters:
   - in: header
-    name: Bearer Token
+    name: Authorization
     required: true
 
 responses:
