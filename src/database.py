@@ -1,7 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import secrets
-
+from flask import Flask
+# from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+app = Flask(__name__, instance_relative_config=True)
 # Init db
 
 db = SQLAlchemy()
@@ -25,6 +27,20 @@ class User(db.Model):
     contacts = db.relationship('Contact', backref='user')
     search_histories = db.relationship('Search_History', backref='user')
     email_histories = db.relationship('Email_History', backref='user')
+
+    # def get_token(self,expires_sec=300):
+    #     serial= itsSerializer(app.config['SECRET_KEY'], expires_in=expires_sec)
+    #     return serial.dumps({'userid':self.Userid}).decode('utf-8')
+   
+   
+    # @staticmethod
+    # def verify_token(token):
+    #     serial=itsSerializer(app.config['SECRET_KEY'])
+    #     try:
+    #         userid= serial.loads(token['Userid'])
+    #     except:
+    #         return None
+    #     return User.query.get(userid)
 
 
         # userid generator here
@@ -53,9 +69,9 @@ class Contact(db.Model):
     __tablename__ = "Contact"
     id = db.Column(db.Integer, primary_key=True)
     Full_name = db.Column(db.String(50), nullable=False)
-    Email = db.Column(db.String(100),unique=True, nullable=False)
-    Phone = db.Column(db.Integer, unique=True,  nullable=False)
-    Birthday = db.Column(db.Integer, unique=True,  nullable=False)
+    Email = db.Column(db.String(100), nullable=False)
+    Phone = db.Column(db.Integer,  nullable=False)
+    Birthday = db.Column(db.Integer, nullable=False)
     User_id = db.Column(db.String(50), db.ForeignKey('User.Userid'))
     Create_at = db.Column(db.DateTime, default=datetime.now())
     Updateed_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -78,6 +94,14 @@ class Search_History(db.Model):
         return 'Search_History>>> {self.Searched_word}'
 
 
+
+
+
+class TokenBlocklist(db.Model):
+    __tablename__ = "TokenBlocklist"
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String(36), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)
 
 # Email History model
 class Email_History(db.Model):

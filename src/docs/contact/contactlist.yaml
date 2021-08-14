@@ -1,0 +1,18 @@
+view all contacts by user
+---
+tags:
+  - Contact
+
+parameters:
+  - in: header
+    name: Bearer Token
+    required: true
+
+responses:
+  200:
+    description: User Contact List Found
+
+  401:
+    description: Fails to get contact due to authentication error
+
+  

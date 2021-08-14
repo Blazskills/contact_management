@@ -1,0 +1,56 @@
+Update contacts
+---
+tags:
+  - Contact
+
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+  - in: path
+    name: id 
+    required: true
+    schema:
+      type: object
+      required:
+        - "First Name"
+        - "Last Name"
+        - "Email"
+        - "phone"
+        - "day"
+        - "month"
+        - "year"
+      properties:
+        fname:
+          type: "First Name"
+          example: "temitope"
+        lname:
+          type: "Last Name"
+          example: "ilesanmi"
+        Email:
+          type: "Email"
+          example: "ilesanmi@gmail.com"
+        phone:
+          type: "phone"
+          example: "08031100078"
+        day:
+          type: "Day"
+          example: "2"
+        month:
+          type: "Month"
+          example: "12"
+        year:
+          type: "year"
+          example: "1992"
+responses:
+  200:
+    description: Contact Updated (Ok)
+
+  400:
+    description: Bad request
+  
+  409:
+    description: Internal Server error
+  500:
+    description: There's a Conflict of data
+ 

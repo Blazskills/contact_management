@@ -1,0 +1,15 @@
+Curent User delete authorized contact
+---
+tags:
+  - Contact
+parameters:
+  - in: path
+    name: id
+    required: true
+
+responses:
+  204:
+    description: Deleted Successfully(NO CONTENT)
+
+  404:
+    description: Contact was not found
