@@ -1,5 +1,5 @@
 from src.constants.http_status_codes import HTTP_200_OK
-from flask import Flask, jsonify
+from flask import Flask, jsonify,request
 import os
 from src.auth import auth
 from src.contact import contact
@@ -7,6 +7,7 @@ from src.database import Contact, TokenBlocklist, db
 from flask_jwt_extended import JWTManager
 from flasgger import Swagger, swag_from
 from src.config.swagger import template, swagger_config
+from flask_msearch import Search
 
 
   
@@ -33,6 +34,8 @@ def create_app(test_config=None):
 
     db.app = app
     db.init_app(app)
+    search = Search()
+    search.init_app(app)
 
     JWTManager(app)
     app.register_blueprint(auth)
@@ -41,7 +44,21 @@ def create_app(test_config=None):
     Swagger(app, config=swagger_config, template=template)
 
 
+    @app.route('/search')
+    def search():
+        keyword = request.args.get('q')
+        posts = Contact.query.msearch(keyword,fields=['Email''Phone'])(limit=6)
+        print(posts)
+        data = []
+        for post in posts:
+            data.append({
+                'name':post.User_id,
+                'id': post.id
+            })
+            print(post.User_id)
+            return ({'msg':data})
 
+        # return ({'msg'})
 
     # @app.errorhandler(HTTP_404_NOT_FOUND)
     # def handle_404(e):

@@ -1,3 +1,4 @@
+from operator import length_hint
 from os import access, pathconf_names
 import re
 import json
@@ -14,14 +15,32 @@ from flask_jwt_extended import JWTManager
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer , SignatureExpired
 from flasgger import swag_from
+from flask_marshmallow import Marshmallow
+from sqlalchemy import func, desc
+import phonenumbers
 
 app = Flask(__name__, instance_relative_config=True)
 jwt = JWTManager(app)
 auth = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 ACCESS_EXPIRES = timedelta(hours=1)
 
+ma = Marshmallow(app)
 
+ # !Member schema
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'Full_name' ,'User_name', 'Email', 'phone', 'Userid','create_at')
 
+@auth.route('/users', methods=['GET'])
+@jwt_required()
+@swag_from('./docs/user/view_alluser.yaml')
+def allusers():
+    #View user Registered API
+    All_user = User.query.order_by(desc(User.create_at)).all()
+    member_schema = UserSchema(many=True)
+    _Alluser = member_schema.dump(All_user)
+    # SCHEMA FOR ALL QUERY
+    return jsonify({'AllUsers': _Alluser})
 
 
 
@@ -52,7 +71,7 @@ def create_user():
         Email = request_data['Email']
         phone = request_data['phone']
         Password = request_data['Password']
-
+       
         if fname == '':
             return jsonify({'Messsage':
                             'First name is empty'}), HTTP_400_BAD_REQUEST
@@ -101,6 +120,16 @@ def create_user():
                 'Messsage':
                 'First and Last Name and Username should be atleast 3 characters long'
             }), HTTP_400_BAD_REQUEST
+        mobileno = phonenumbers.parse(phone, 'en')
+
+        print('valid mobilenumber:' ,phonenumbers.is_valid_number(mobileno))
+
+        checkvalid= phonenumbers.is_valid_number(mobileno)
+        if checkvalid == False:
+            return jsonify({'Messsage':
+                                'This number is invalid.It can not be used.'}), HTTP_400_BAD_REQUEST
+        phone_convert = phonenumbers.format_number(mobileno, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+        print(phone_convert)
         if " " in Email:
             return jsonify({'Messsage': 'Ensure no space inbetween email'
                             }), HTTP_400_BAD_REQUEST
@@ -110,40 +139,18 @@ def create_user():
         if len(Password) < 6:
             return jsonify({'Messsage':
                             'Password is too short'}), HTTP_400_BAD_REQUEST
-        if " " in phone:
-            return jsonify({
-                'Messsage': 'Ensure no space inbetween phone number'
-            }), HTTP_400_BAD_REQUEST
-        if len(phone) < 10:
-            return jsonify({
-                'Messsage':
-                'phone number should be atleast 10 characters long'
-            }), HTTP_400_BAD_REQUEST
-        if len(phone) > 11:
-            return jsonify({
-                'Messsage':
-                'phone number should not be more than 11 characters long'
-            }), HTTP_400_BAD_REQUEST
-
-        if not re.match("[0-9]", phone):
-            return jsonify({
-                'Messsage':
-                'phone number should not contain letters'
-            }), HTTP_400_BAD_REQUEST
-        if not isinstance(phone, int):
-                return jsonify({'Messsage':
-                                'Phone number should be a digit'}), HTTP_400_BAD_REQUEST
 
         if User.query.filter_by(Email=Email).first() is not None:
             return jsonify({'Messsage':
                             'Email already taken'}), HTTP_409_CONFLICT
 
-        if User.query.filter_by(phone=phone).first() is not None:
+        if User.query.filter_by(phone=phone_convert).first() is not None:
             return jsonify({'Messsage':
                             'Phone number already taken'}), HTTP_409_CONFLICT
         if User.query.filter_by(User_name=User_name).first() is not None:
             return jsonify({'Messsage':
                             'Username  already taken'}), HTTP_409_CONFLICT
+       
         fullname = fname + " " + lname
         print(fullname)
         hash_Password = generate_password_hash(Password, method="sha256")
@@ -151,7 +158,7 @@ def create_user():
             Full_name=fullname,
             User_name=User_name,
             Email=Email,
-            phone=phone,
+            phone=phone_convert,
             Password=hash_Password,
         )
         db.session.add(Registered_user)
@@ -165,9 +172,14 @@ def create_user():
                 'Phone': phone
             }
         }), HTTP_201_CREATED
+        
+    except Exception as e:
+        return jsonify({'Messsage':
+                                'Ensure your number has a country code.'}), HTTP_400_BAD_REQUEST
+    
     except KeyError as e:
         return jsonify({'Error': str(e) + ' is missing'}), HTTP_400_BAD_REQUEST
-
+    
 
 # login user 2
 @auth.post('/login_user')
@@ -215,6 +227,7 @@ def login_user():
     except Exception as er:
         return jsonify({'Messsage':
                         'email or password is invalid'}), HTTP_400_BAD_REQUEST
+
 
 
 # retrive user 3

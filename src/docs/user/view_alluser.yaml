@@ -1,0 +1,13 @@
+Retrive all registered information
+---
+tags:
+  - User
+
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+
+responses:
+  200:
+    description: Profile retrived

@@ -67,6 +67,7 @@ class User(db.Model):
 
 class Contact(db.Model):
     __tablename__ = "Contact"
+    __searchable__ = ['Full_name', 'Email']
     id = db.Column(db.Integer, primary_key=True)
     Full_name = db.Column(db.String(50), nullable=False)
     Email = db.Column(db.String(100), nullable=False)
@@ -77,7 +78,7 @@ class Contact(db.Model):
     Updateed_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __repr__(self) -> str:
-        return 'Contact>>> {self.Full_name}'
+        return '<Contact %r>' % self.Full_name
 
 
 # Search History model
