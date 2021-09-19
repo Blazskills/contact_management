@@ -1,5 +1,6 @@
 from operator import length_hint
 from os import access, pathconf_names
+import os
 import re
 import json
 from flask import Blueprint, request, jsonify, Flask,url_for
@@ -18,6 +19,11 @@ from flasgger import swag_from
 from flask_marshmallow import Marshmallow
 from sqlalchemy import func, desc
 import phonenumbers
+from flask_mail import Mail, Message
+from threading import Thread
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+
+
 
 app = Flask(__name__, instance_relative_config=True)
 jwt = JWTManager(app)
@@ -42,7 +48,120 @@ def allusers():
     # SCHEMA FOR ALL QUERY
     return jsonify({'AllUsers': _Alluser})
 
+app = Flask(__name__, instance_relative_config=True)
 
+app.config['MAIL_SERVER']= 'premium24.web-hosting.com'
+app.config['MAIL_USERNAME'] = os.environ.get('GMAIL_ID')
+app.config['MAIL_PASSWORD'] = os.environ.get('APP_PASSWORD')
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USE_TLS'] = False
+MAIL_MAX_EMAILS= None
+MAIL_DEFAULT_SENDER = 'Ilesanmi Temitope'
+
+
+mail = Mail(app)
+
+
+# FUNCTION FOR SENDING PICTURE TO USER AND ADMIN "Peter from Mailtrap", 'peter@mailtrap.io') 
+def send_email_thread(msg):
+    with app.app_context():
+        mail.send(msg)
+
+
+
+def send_reset_email(email,token):
+    msg = Message('Password Reset.', sender=('info@toismart.com'), recipients=[
+
+        
+        str(email),
+    ])
+    msg.body =f'''
+    To reset your your password your password, visit the link:
+    {url_for('auth.reset_token', token=token, _external =True)}
+
+    If you did not make this request, then simply ignore this email and no change will be implimented.
+    '''
+    thr = Thread(target=send_email_thread, args=[msg])
+    thr.start()
+
+def get_reset_token(email, expires_sec=60):
+    s = Serializer((os.environ.get('RESET_PASSWORD_CODE')), expires_sec)
+    return s.dumps({'email': email}).decode('utf-8')
+
+
+
+
+@auth.post("/reset_password")
+@swag_from('./docs/user/reset_password.yaml')
+def reset_request():
+        try:
+            if request.content_type != 'application/json':
+                return jsonify({
+                    'Messsage':
+                    'Bad request, Content-type must be json type'
+                }), HTTP_400_BAD_REQUEST
+            request_data = request.get_json()
+            if not request_data:
+                return jsonify({"Messsage": "Empty request"}), HTTP_400_BAD_REQUEST
+            email = request_data['email']
+            if email == '':
+                return jsonify({'Messsage':
+                                'Fields can not be empty'}), HTTP_400_BAD_REQUEST
+            validate_user = User.query.filter_by(
+                Email=email).first()
+            if validate_user:
+                tokenz=get_reset_token(email)
+                send_reset_email(email,tokenz)
+                return jsonify({
+                        'Message': 'An email has been sent with instructions to reset your password.'
+                                           }), HTTP_200_OK
+            return jsonify({'Message': 'Wrong Email'}), HTTP_404_NOT_FOUND
+        except Exception as er:
+         return jsonify({'Messsage':
+                         er}), HTTP_400_BAD_REQUEST
+
+
+
+def verify_reset_token(token):
+    s = Serializer((os.environ.get('RESET_PASSWORD_CODE')))
+    try:
+        email = s.loads(token)['email']
+    except:
+        return None
+    return email
+     
+
+@auth.post("/reset_password/<token>")
+def reset_token(token):
+    try:
+        if request.content_type != 'application/json':
+            return jsonify({
+                'Messsage':
+                'Bad request, Content-type must be json type'
+            }), HTTP_400_BAD_REQUEST
+        user = verify_reset_token(token)
+        if user is None:
+            return jsonify({'Message': 'That is an invalid or expired token'}), HTTP_401_UNAUTHORIZED
+        useremail = User.query.filter_by(Email=user).first()
+        if not useremail:
+            return jsonify({'Message': 'User not found'}), HTTP_404_NOT_FOUND
+        request_data = request.get_json()
+        if not request_data:
+                return jsonify({"Messsage": "Empty request"}), HTTP_400_BAD_REQUEST     
+        Password = request_data['Password']
+        if Password == '':
+            return jsonify({'Messsage':
+                            'Password Can not be Empty'}), HTTP_400_BAD_REQUEST
+        hash_Password = generate_password_hash(Password, method="sha256")
+        useremail.Password = hash_Password
+        db.session.commit()
+        return jsonify({
+                        'Message': 'Your password has been updated! You are now able to log in'
+                    }), HTTP_200_OK
+    except Exception as er:
+        return jsonify({'Messsage':
+                        'There is an error'}), HTTP_400_BAD_REQUEST
 
 
 

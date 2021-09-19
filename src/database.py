@@ -1,8 +1,9 @@
+import os
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import secrets
 from flask import Flask
-# from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 app = Flask(__name__, instance_relative_config=True)
 # Init db
 
@@ -28,20 +29,7 @@ class User(db.Model):
     search_histories = db.relationship('Search_History', backref='user')
     email_histories = db.relationship('Email_History', backref='user')
 
-    # def get_token(self,expires_sec=300):
-    #     serial= itsSerializer(app.config['SECRET_KEY'], expires_in=expires_sec)
-    #     return serial.dumps({'userid':self.Userid}).decode('utf-8')
-   
-   
-    # @staticmethod
-    # def verify_token(token):
-    #     serial=itsSerializer(app.config['SECRET_KEY'])
-    #     try:
-    #         userid= serial.loads(token['Userid'])
-    #     except:
-    #         return None
-    #     return User.query.get(userid)
-
+ 
 
         # userid generator here
     def generate_userid(self):

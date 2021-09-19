@@ -457,3 +457,101 @@
 
 
 
+# 
+
+
+# FUNCTION FOR SENDING PICTURE TO USER AND ADMIN "Peter from Mailtrap", 'peter@mailtrap.io') 
+# def send_email_thread(msg):
+#     with app.app_context():
+#         mail.send(msg)
+
+
+
+# def send_reset_email(User):
+#     token= User.get_reset_token()
+#     msg = Message('Password Reset.', sender=("Reset Password {} ".format('info@toismart.com')), recipients=[
+
+        
+#         str(User.email),
+#     ])
+#     msg.body =f'''
+#     To reset your your password your password, visit the tollowinh link:
+#     {url_for('reset_token', token=token, _external =True)}
+
+#     If you did not make this request, then simply ignore this email and no change 
+#     '''
+#     thr = Thread(target=send_email_thread, args=[msg])
+#     thr.start()
+
+# @auth.post("/reset_password")
+# def reset_request():
+#      try:
+#         if request.content_type != 'application/json':
+#             return jsonify({
+#                 'Messsage':
+#                 'Bad request, Content-type must be json type'
+#             }), HTTP_400_BAD_REQUEST
+#         request_data = request.get_json()
+#         if not request_data:
+#             return jsonify({"Messsage": "Empty request"}), HTTP_400_BAD_REQUEST
+#         email = request_data['email']
+#         if email == '':
+#             return jsonify({'Messsage':
+#                             'Fields can not be empty'}), HTTP_400_BAD_REQUEST
+#         user = User.query.filter_by(
+#             Email=email).first()
+#         if user:
+#             send_reset_email(user)
+#             return jsonify({
+#                     'Message': 'An email has been sent with instructions to reset your password.'
+#                 }), HTTP_200_OK
+#         return jsonify({'Message': 'Wrong Email'}), HTTP_401_UNAUTHORIZED
+#      except Exception as er:
+#         return jsonify({'Messsage':
+#                         er}), HTTP_400_BAD_REQUEST
+
+
+# @app.post("/reset_password/<token>")
+# def reset_token(token):
+#     try:
+#         if request.content_type != 'application/json':
+#             return jsonify({
+#                 'Messsage':
+#                 'Bad request, Content-type must be json type'
+#             }), HTTP_400_BAD_REQUEST
+        
+#         user = User.verify_reset_token(token)
+#         if user is None:
+#             return jsonify({'Message': 'That is an invalid or expired token'}), HTTP_401_UNAUTHORIZED
+#         request_data = request.get_json()
+#         if not request_data:
+#                 return jsonify({"Messsage": "Empty request"}), HTTP_400_BAD_REQUEST
+        
+#         Password = request_data['Password']
+#         hash_Password = generate_password_hash(Password, method="sha256")
+#         user.Password = hash_Password
+#         db.session.commit()
+#         return jsonify({
+#                         'Message': 'Your password has been updated! You are now able to log in'
+#                     }), HTTP_200_OK
+   
+#     except Exception as er:
+#         return jsonify({'Messsage':
+#                         'There is an error'}), HTTP_400_BAD_REQUEST
+
+
+
+
+
+   # def get_reset_token(self, expires_sec=1800):
+    #     s=Serializer(os.environ.get["SECRET_KEY"], expires_sec)
+    #     return s.dumps({'user_id': self.Userid}).decode('utf-8')
+
+    # @staticmethod
+    # def verify_reset_token(token):
+    #     s= Serializer(os.environ.get["SECRET_KEY"])
+    #     try:
+    #         user_id = s.loads(token)['user_id']
+    #     except:
+    #         return None
+    #     return User.query.get(user_id)

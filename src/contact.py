@@ -1,4 +1,5 @@
 from datetime import date
+import os
 from flasgger.utils import swag_from
 from flask import Flask
 import re
@@ -10,11 +11,15 @@ import validators
 from src.database import Contact, db
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import phonenumbers
+
+from flask import (
+    Flask,
+    render_template,
+    request
+)
+# msahauwlfvuhsshq
+
 contact = Blueprint('contact', __name__, url_prefix='/api/v1/contact')
-app = Flask(__name__, instance_relative_config=True)
-
-
-
 
 # Add new contact
 @contact.post('/Add_contact')
@@ -59,14 +64,18 @@ def Add_contact():
                                 'Last name is empty'}), HTTP_400_BAD_REQUEST
             mobileno = phonenumbers.parse(Phone, 'en')
 
-            print('valid mobilenumber:' ,phonenumbers.is_valid_number(mobileno))
+            print('valid mobilenumber:',
+                  phonenumbers.is_valid_number(mobileno))
 
-            checkvalid= phonenumbers.is_valid_number(mobileno)
-            phone_convert = phonenumbers.format_number(mobileno, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+            checkvalid = phonenumbers.is_valid_number(mobileno)
+            phone_convert = phonenumbers.format_number(
+                mobileno, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
             if checkvalid == False:
-                return jsonify({'Messsage':
-                                    'This number is invalid.It can not be used.'}), HTTP_400_BAD_REQUEST
+                return jsonify({
+                    'Messsage':
+                    'This number is invalid.It can not be used.'
+                }), HTTP_400_BAD_REQUEST
             print(phone_convert)
 
             if Email == '':
@@ -142,16 +151,15 @@ def Add_contact():
                 'updated_at': contact.Updateed_at,
             }), HTTP_201_CREATED
     except Exception as e:
-        return jsonify({'Messsage':
-                                'Ensure your number has a country code.'}), HTTP_400_BAD_REQUEST
-    
+        return jsonify({'Messsage': 'Ensure your number has a country code.'
+                        }), HTTP_400_BAD_REQUEST
+
     except KeyError as e:
         return jsonify({'Error':
                         str(e) + ' is the problem'}), HTTP_400_BAD_REQUEST
     except Exception as er:
         return jsonify({'Messsage': 'Something went wrong' + str(er)
                         }), HTTP_500_INTERNAL_SERVER_ERROR
-    
 
 
 # view auth user contact list
@@ -187,6 +195,7 @@ def My_contacts():
             'has_next': contacts.has_next,
             'has_prev': contacts.has_prev,
         }
+   
     return jsonify({'data': data, "meta": meta}), HTTP_200_OK
 
 
@@ -257,15 +266,17 @@ def editcontact(id):
                             'Email is not valid'}), HTTP_400_BAD_REQUEST
         mobileno = phonenumbers.parse(Phone, 'en')
 
-        print('valid mobilenumber:' ,phonenumbers.is_valid_number(mobileno))
+        print('valid mobilenumber:', phonenumbers.is_valid_number(mobileno))
 
-        checkvalid= phonenumbers.is_valid_number(mobileno)
-        phone_convert = phonenumbers.format_number(mobileno, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
+        checkvalid = phonenumbers.is_valid_number(mobileno)
+        phone_convert = phonenumbers.format_number(
+            mobileno, phonenumbers.PhoneNumberFormat.INTERNATIONAL)
 
         if checkvalid == False:
-            return jsonify({'Messsage':
-                                'This number is invalid.It can not be used.'}), HTTP_400_BAD_REQUEST
-        
+            return jsonify({
+                'Messsage':
+                'This number is invalid.It can not be used.'
+            }), HTTP_400_BAD_REQUEST
 
         if not all(x.isalpha() and not x.isspace() for x in fname):
             return jsonify({
@@ -301,16 +312,15 @@ def editcontact(id):
             return jsonify({'Messsage':
                             'year is not a number'}), HTTP_400_BAD_REQUEST
         dob = date(year, month, day)
-        if Contact.query.filter_by(Email=Email,
-                                    User_id=current_user).first():
+        if Contact.query.filter_by(Email=Email, User_id=current_user).first():
             return jsonify({'error':
                             'email already exists'}), HTTP_409_CONFLICT
         if Contact.query.filter_by(Phone=phone_convert,
-                                    User_id=current_user).first():
+                                   User_id=current_user).first():
             return jsonify({'error':
                             'Phone already exists'}), HTTP_409_CONFLICT
         if Contact.query.filter_by(Full_name=fullname,
-                                    User_id=current_user).first():
+                                   User_id=current_user).first():
             return jsonify({'error':
                             'fullname already exists'}), HTTP_409_CONFLICT
         Contact(Full_name=fullname,
@@ -337,20 +347,19 @@ def editcontact(id):
             'updated_at': contact.Updateed_at,
         }), HTTP_200_OK
     except Exception as e:
-        return jsonify({'Messsage':
-                                'Ensure your number has a country code.'}), HTTP_400_BAD_REQUEST
-    
+        return jsonify({'Messsage': 'Ensure your number has a country code.'
+                        }), HTTP_400_BAD_REQUEST
+
     except KeyError as e:
         return jsonify({'Error':
                         str(e) + ' is the problem'}), HTTP_400_BAD_REQUEST
     except Exception as er:
         return jsonify({'Messsage': 'Something went wrong' + str(er)
                         }), HTTP_500_INTERNAL_SERVER_ERROR
-    
 
 
+# Auth Delete authorized contact user saved
 
-# Auth Delete authorized contact user saved 
 
 @contact.delete("/<int:id>")
 @jwt_required()
@@ -365,18 +374,8 @@ def delete_contact(id):
     return jsonify({}), HTTP_204_NO_CONTENT
 
 
-
-
-
-
-
 # @contact.get('/result')
 # def result():
 #    searchword = request.args.get('q')
 #    searchresults = Contact.query.msearch(searchword, fields=['Full_name', 'Email','Phone'], limit =100 )
 #    return jsonify({'Message': searchresults}), HTTP_200_OK
-
-
-
-
- 
