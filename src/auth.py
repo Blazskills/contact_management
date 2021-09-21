@@ -93,7 +93,7 @@ def get_reset_token(email, expires_sec=60):
 
 
 @auth.post("/reset_password")
-@swag_from('./docs/user/reset_password.yaml')
+@swag_from('./docs/user/reset_request.yaml')
 def reset_request():
         try:
             if request.content_type != 'application/json':
@@ -133,6 +133,7 @@ def verify_reset_token(token):
      
 
 @auth.post("/reset_password/<token>")
+@swag_from('./docs/user/reset_password.yaml')
 def reset_token(token):
     try:
         if request.content_type != 'application/json':
