@@ -15,11 +15,11 @@ parameters:
       properties:
         emailorphone:
           type: "email or phone number"
-          example: "user@gmail.com or 080311000XX"
+          example: "08031100078"
         Password:
           type: "string"
           format: password
-          example: "********"
+          example: "admin1"
 responses:
   200:
     description: When a user successfully logs in

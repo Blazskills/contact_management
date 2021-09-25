@@ -1,11 +1,18 @@
-Add new contacts (not more than 100)
+Add new contacts (Maximum of 100)
 ---
 tags:
   - Contact
+security:
+  - Bearer: {
+     "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+  }
 parameters:
-  - in: header
-    name: Authorization
-    required: true
+  # - in: header
+  #   name: Authorization
+  #   required: true
   - name: body
     description: The body should contain the user Registration data
     in: body

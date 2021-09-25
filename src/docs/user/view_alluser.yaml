@@ -2,12 +2,20 @@ Retrive all registered information
 ---
 tags:
   - User
+description: Any Authenticated user can View all registered user information in the database
 
-parameters:
-  - in: header
-    name: Authorization
-    required: true
+# parameters:
+#   - in: header
+#     name: Authorization
+#     required: true
 
+security:
+  - Bearer: {
+     "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+  }
 responses:
   200:
     description: Profile retrived

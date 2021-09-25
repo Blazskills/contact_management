@@ -256,6 +256,12 @@ def editcontact(id):
         if lname == '':
             return jsonify({'Messsage':
                             'Last name is empty'}), HTTP_400_BAD_REQUEST
+        if Phone == '':
+            return jsonify({'Messsage':
+                            'Phone is is empty'}), HTTP_400_BAD_REQUEST
+        if day == '' or month == '' or year == '':
+            return jsonify({'Messsage':
+                            'Kindly check if any of day or month or day is empty'}), HTTP_400_BAD_REQUEST
 
         if Email == '':
             return jsonify({'Messsage':
@@ -264,6 +270,8 @@ def editcontact(id):
         if not validators.email(Email):
             return jsonify({'Messsage':
                             'Email is not valid'}), HTTP_400_BAD_REQUEST
+        
+        
         mobileno = phonenumbers.parse(Phone, 'en')
 
         print('valid mobilenumber:', phonenumbers.is_valid_number(mobileno))
@@ -312,17 +320,17 @@ def editcontact(id):
             return jsonify({'Messsage':
                             'year is not a number'}), HTTP_400_BAD_REQUEST
         dob = date(year, month, day)
-        if Contact.query.filter_by(Email=Email, User_id=current_user).first():
-            return jsonify({'error':
-                            'email already exists'}), HTTP_409_CONFLICT
-        if Contact.query.filter_by(Phone=phone_convert,
-                                   User_id=current_user).first():
-            return jsonify({'error':
-                            'Phone already exists'}), HTTP_409_CONFLICT
-        if Contact.query.filter_by(Full_name=fullname,
-                                   User_id=current_user).first():
-            return jsonify({'error':
-                            'fullname already exists'}), HTTP_409_CONFLICT
+        # if Contact.query.filter_by(Email=Email, User_id=current_user).first():
+        #     return jsonify({'Messsage':
+        #                     'email already exists'}), HTTP_409_CONFLICT
+        # if Contact.query.filter_by(Phone=phone_convert,
+        #                            User_id=current_user).first():
+        #     return jsonify({'Messsage':
+        #                     'Phone already exists'}), HTTP_409_CONFLICT
+        # if Contact.query.filter_by(Full_name=fullname,
+        #                            User_id=current_user).first():
+        #     return jsonify({'Messsage':
+        #                     'fullname already exists'}), HTTP_409_CONFLICT
         Contact(Full_name=fullname,
                 Email=Email,
                 Phone=phone_convert,
@@ -331,7 +339,7 @@ def editcontact(id):
 
         contact.Full_name = fullname
         contact.Email = Email
-        contact.Phone = phone_convert
+        contact.Phone = Phone
         contact.Birthday = dob
         contact.User_id = current_user
         db.session.commit()
@@ -347,7 +355,7 @@ def editcontact(id):
             'updated_at': contact.Updateed_at,
         }), HTTP_200_OK
     except Exception as e:
-        return jsonify({'Messsage': 'Ensure your number has a country code.'
+        return jsonify({'Messsage': f'{e} Issue. Error..'
                         }), HTTP_400_BAD_REQUEST
 
     except KeyError as e:

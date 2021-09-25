@@ -85,7 +85,8 @@ def send_reset_email(email,token):
     thr = Thread(target=send_email_thread, args=[msg])
     thr.start()
 
-def get_reset_token(email, expires_sec=60):
+def get_reset_token(email, expires_sec=1800):
+    # Expire time is 1800 seconds which is 30min
     s = Serializer((os.environ.get('RESET_PASSWORD_CODE')), expires_sec)
     return s.dumps({'email': email}).decode('utf-8')
 
@@ -114,7 +115,8 @@ def reset_request():
                 tokenz=get_reset_token(email)
                 send_reset_email(email,tokenz)
                 return jsonify({
-                        'Message': 'An email has been sent with instructions to reset your password.'
+                        'Message': 'An email has been sent with instructions to reset your password. This link expires in 30 Minute',
+                        'Reset_Token':tokenz
                                            }), HTTP_200_OK
             return jsonify({'Message': 'Wrong Email'}), HTTP_404_NOT_FOUND
         except Exception as er:
@@ -329,8 +331,9 @@ def login_user():
         if user:
             is_pass_correct = check_password_hash(user.Password, Password)
             if is_pass_correct:
+                expires = timedelta(hours=2)
                 refresh = create_refresh_token(identity=user.Userid)
-                access = create_access_token(identity=user.Userid)
+                access = create_access_token(identity=user.Userid, expires_delta=expires)
                 return jsonify({
                     'Message': 'successfully Loged in ',
                     'user': {
@@ -346,7 +349,7 @@ def login_user():
 
     except Exception as er:
         return jsonify({'Messsage':
-                        'email or password is invalid'}), HTTP_400_BAD_REQUEST
+                        f'{er} oops!!! Something went wrong'}), HTTP_400_BAD_REQUEST
 
 
 

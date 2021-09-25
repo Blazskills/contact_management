@@ -4,12 +4,15 @@ tags:
   - Contact
 
 parameters:
-  - in: header
-    name: Authorization
-    required: true
+  
   - in: path
     name: id 
     required: true
+  - in: body
+    name: body
+    description: The body should contain updated contact credential
+    required: true
+
     schema:
       type: object
       required:
@@ -30,18 +33,25 @@ parameters:
         Email:
           type: "Email"
           example: "ilesanmi@gmail.com"
-        phone:
+        Phone:
           type: "phone"
-          example: "08031100078"
+          example: "+2348031100078"
         day:
           type: "Day"
-          example: "2"
+          example: 2
         month:
           type: "Month"
-          example: "12"
+          example: 12
         year:
           type: "year"
-          example: "1992"
+          example: 1992
+security:
+  - Bearer: {
+     "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+  }
 responses:
   200:
     description: Contact Updated (Ok)

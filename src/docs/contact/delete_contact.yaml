@@ -2,11 +2,18 @@ Curent User delete authorized contact. Delete contact under current user
 ---
 tags:
   - Contact
-parameters:
-  - in: path
-    name: id
-    required: true
-
+"description": "Execute to view delete contact related/registered by current User"
+# parameters:
+#   - in: path
+#     name: id
+#     required: true
+security:
+  - Bearer: {
+     "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+  }
 responses:
   204:
     description: Deleted Successfully(NO CONTENT)

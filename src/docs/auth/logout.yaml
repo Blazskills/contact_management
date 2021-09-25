@@ -2,11 +2,20 @@ Logout user
 ---
 tags:
   - Authentication
-parameters:
-  - in: header
-    name: Authorization
-    required: true
-
+description: Just Execute to logout
+# parameters:
+#     description: The body should contain updated contact credential
+#   - in: header
+#     name: Authorization
+#     required: true
+  
+security:
+  - Bearer: {
+     "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+  }
 responses:
   200:
     description: Logout Successful(Ok)

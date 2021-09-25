@@ -23,7 +23,7 @@ template = {
             "name": "Authorization",
             "in": "header",
             "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
-        }
+        },
     },
 }
 

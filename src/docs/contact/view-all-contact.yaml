@@ -2,12 +2,18 @@ view all contacts available in the database. Only available to authorized user
 ---
 tags:
   - Contact
-
-parameters:
-  - in: header
-    name: Authorization
-    required: true
-
+description: view all contacts available in the database. Only available to authenticated/authorized user
+# parameters:
+#   - in: header
+#     name: Authorization
+#     required: true
+security:
+  - Bearer: {
+     "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
+  }
 responses:
   200:
     description: User Contact List Found

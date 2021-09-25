@@ -6,7 +6,8 @@ tags:
 parameters:
   - in: header
     name: Authorization
-    required: true
+    description: "Only refresh token here"
+
 
 responses:
   200:
